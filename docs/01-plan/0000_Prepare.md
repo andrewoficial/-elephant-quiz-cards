@@ -17,13 +17,26 @@
 - [x] 0. Окружение
 - [x] 1. Модуль `shared`
 - [x] 2. Зависимости Gradle (проверены сборкой по одной)
-- [~] 3. Документация: `docs/` + `00-tz` + `00-system-requirements` + этот файл +
-      `02-architecture/ARCHITECTURE.md` + `DATA-MODEL.md` есть;
-      нет `ROADMAP` / `STAGE-*` / `SYNC` / `DECISIONS` / `LIBS` / `GLOSSARY`.
-- [~] 4. Каркас UI: сделано **одно** окно (упрощение вместо 4 экранов + навигации)
-- [~] 5. Первый билд: `:androidApp:assembleDebug` — OK; установки на телефон ещё не было
-- [ ] 6. Git + GitHub + README/LICENSE (сделает автор вручную, локальный git + первый коммит)
+- [~] 3. Документация: есть `0000_Prepare`, `SYSTEM-REQUIREMENTS`, `ARCHITECTURE`,
+      `DATA-MODEL`, `ROADMAP`, `STAGE-01-foundation`, `AGENTS.md`;
+      нет `STAGE-02..07` / `SYNC` / `DECISIONS` / `LIBS` / `GLOSSARY`.
+- [x] 4. Каркас UI: `SubjectsScreen` (направления + прогресс-бары) + `EditorScreen` (Q/A)
+- [x] 5. Билды: `:androidApp:assembleDebug`, `:desktopApp:run` — OK;
+      проверено автором на эмуляторе `Pixel_6` и на десктопе.
+- [x] 6. Git: локальный репозиторий + пуш на удалённый (сделал автор).
 - [x] 7. `AGENTS.md` в корне (правило: GUI-тесты — вручную автором)
+
+### Реализовано сверх плана Stage-00 (Stage-02 domain + персистентность)
+
+- [x] Доменные модели (§2 ТЗ), SM-2 и критерий «выучено» (§3–4) + юнит-тесты.
+- [x] SQLDelight: схема, драйверы, `SqlDelightStore` — сохранение между запусками.
+- [x] Экран редактора карточек (добавление Q/A).
+
+### Следующий шаг (продолжение завтра)
+
+- [ ] **Stage-01: DI (Koin)** — вынести создание `SqlDelightStore`/драйвера в Koin-модули
+      (common + платформенные), убрать ручное создание из точек входа. См. `STAGE-01-foundation.md`.
+- [ ] Затем: навигация (библиотека) + остальные экраны §6; выбор роутера — в `DECISIONS.md`.
 
 ---
 

@@ -13,6 +13,9 @@ dependencies {
     implementation(libs.kotlinx.coroutinesSwing)
 
     implementation(libs.compose.uiToolingPreview)
+
+    // Провайдер SLF4J, чтобы не было "No SLF4J providers were found"
+    runtimeOnly(libs.slf4j.nop)
 }
 
 compose.desktop {

@@ -110,3 +110,9 @@ emulator -list-avds                             # ожидаем Pixel_6
 - iOS-таргеты объявлены в `shared`, но на Windows не компилируются — это ожидаемо.
 - Fat-jar (`...-windows-x64-...`) собирается под текущую ОС; для Linux/Mac —
   пересобрать `:desktopApp:packageUberJarForCurrentOS` на соответствующей ОС.
+- **Skiko (Desktop):** в логе возможен `Failed to create DirectX12 device` +
+  `[SKIKO] warn: Fallback to next API`. Это НЕ ошибка — рендер откатывается на другой
+  backend и приложение работает (типично для RDP/ВМ/старых драйверов GPU).
+  Форсировать backend при необходимости: JVM-флаг `-Dskiko.renderApi=OPENGL` (или `SOFTWARE`).
+- **SLF4J (Desktop):** раньше печаталось `No SLF4J providers were found` — устранено
+  добавлением `org.slf4j:slf4j-nop` (runtimeOnly) в `desktopApp`.
