@@ -1,0 +1,31 @@
+CREATE TABLE topic (
+    id TEXT NOT NULL PRIMARY KEY,
+    parentId TEXT,
+    level TEXT NOT NULL,
+    name TEXT NOT NULL,
+    sortOrder INTEGER NOT NULL,
+    color INTEGER,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL,
+    deletedAt INTEGER,
+    syncVersion INTEGER NOT NULL
+);
+
+selectAllTopics:
+SELECT * FROM topic WHERE deletedAt IS NULL ORDER BY level, sortOrder, name;
+
+selectRootTopics:
+SELECT * FROM topic WHERE parentId IS NULL AND deletedAt IS NULL ORDER BY sortOrder, name;
+
+selectChildTopics:
+SELECT * FROM topic WHERE parentId = :parentId AND deletedAt IS NULL ORDER BY sortOrder, name;
+
+selectTopicById:
+SELECT * FROM topic WHERE id = :id;
+
+upsertTopic:
+INSERT OR REPLACE INTO topic(id, parentId, level, name, sortOrder, color, createdAt, updatedAt, deletedAt, syncVersion)
+VALUES (:id, :parentId, :level, :name, :sortOrder, :color, :createdAt, :updatedAt, :deletedAt, :syncVersion);
+
+deleteTopic:
+DELETE FROM topic WHERE id = :id;

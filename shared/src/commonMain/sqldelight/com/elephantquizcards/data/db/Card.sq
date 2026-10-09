@@ -1,0 +1,57 @@
+CREATE TABLE card (
+    id TEXT NOT NULL PRIMARY KEY,
+    schemaVersion INTEGER NOT NULL,
+    syncVersion INTEGER NOT NULL,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL,
+    deletedAt INTEGER,
+    type TEXT NOT NULL,
+    question TEXT NOT NULL,
+    questionCode TEXT,
+    answer TEXT NOT NULL,
+    answerCode TEXT,
+    explanation TEXT,
+    optionsJson TEXT NOT NULL,
+    variantsJson TEXT NOT NULL,
+    topicId TEXT NOT NULL,
+    labelsJson TEXT NOT NULL,
+    tagsJson TEXT NOT NULL,
+    source TEXT NOT NULL,
+    aiUnreviewed INTEGER NOT NULL,
+    favorite INTEGER NOT NULL,
+    difficulty INTEGER,
+    easinessFactor REAL NOT NULL,
+    intervalDays INTEGER NOT NULL,
+    repetitions INTEGER NOT NULL,
+    dueDate INTEGER NOT NULL,
+    lastReviewedAt INTEGER,
+    lapses INTEGER NOT NULL
+);
+
+selectCardsByTopic:
+SELECT * FROM card WHERE topicId = :topicId AND deletedAt IS NULL ORDER BY createdAt;
+
+selectCardsByTopics:
+SELECT * FROM card WHERE topicId IN ? AND deletedAt IS NULL ORDER BY createdAt;
+
+selectCardById:
+SELECT * FROM card WHERE id = :id;
+
+upsertCard:
+INSERT OR REPLACE INTO card(
+    id, schemaVersion, syncVersion, createdAt, updatedAt, deletedAt,
+    type, question, questionCode, answer, answerCode, explanation,
+    optionsJson, variantsJson, topicId, labelsJson, tagsJson,
+    source, aiUnreviewed, favorite, difficulty,
+    easinessFactor, intervalDays, repetitions, dueDate, lastReviewedAt, lapses
+)
+VALUES (
+    :id, :schemaVersion, :syncVersion, :createdAt, :updatedAt, :deletedAt,
+    :type, :question, :questionCode, :answer, :answerCode, :explanation,
+    :optionsJson, :variantsJson, :topicId, :labelsJson, :tagsJson,
+    :source, :aiUnreviewed, :favorite, :difficulty,
+    :easinessFactor, :intervalDays, :repetitions, :dueDate, :lastReviewedAt, :lapses
+);
+
+softDeleteCard:
+UPDATE card SET deletedAt = :deletedAt, updatedAt = :updatedAt WHERE id = :id;

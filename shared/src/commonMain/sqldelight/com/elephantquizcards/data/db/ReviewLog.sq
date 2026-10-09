@@ -1,0 +1,22 @@
+CREATE TABLE reviewLog (
+    id TEXT NOT NULL PRIMARY KEY,
+    cardId TEXT NOT NULL,
+    variantId TEXT,
+    reviewedAt INTEGER NOT NULL,
+    mode TEXT NOT NULL,
+    quality INTEGER NOT NULL,
+    livesLost INTEGER,
+    intervalBefore INTEGER NOT NULL,
+    intervalAfter INTEGER NOT NULL,
+    timeSpentMs INTEGER
+);
+
+selectAllReviewLogs:
+SELECT * FROM reviewLog ORDER BY reviewedAt;
+
+selectReviewLogsByCard:
+SELECT * FROM reviewLog WHERE cardId = :cardId ORDER BY reviewedAt;
+
+insertReviewLog:
+INSERT OR REPLACE INTO reviewLog(id, cardId, variantId, reviewedAt, mode, quality, livesLost, intervalBefore, intervalAfter, timeSpentMs)
+VALUES (:id, :cardId, :variantId, :reviewedAt, :mode, :quality, :livesLost, :intervalBefore, :intervalAfter, :timeSpentMs);
