@@ -50,10 +50,14 @@
 
 ### Следующий шаг
 
-- [ ] Экраны §6: нижний бар навигации + `settings`, `jungle/{areaId}`,
-      `training/{areaId}/{mode}`, `free_training`, `interview`.
-- [ ] Редактор целиком: CRUD, поиск, 3 вкладки (§6).
-- [ ] Training: 4 метода + SM-2 + очередь на сегодня; Progress-агрегация в UI.
+Также сделано: **Editor — CRUD** (добавить/изменить/удалить с подтверждением) +
+**поиск** по вопросу/ответу (`domain/logic/CardSearch.kt` + юнит-тесты).
+
+- [ ] Editor: вкладки (список/поиск/импорт) и импорт/экспорт JSON (§5.2/§5.3).
+- [ ] Training: 4 метода + SM-2 + очередь на сегодня (§3, roadmap #5).
+- [ ] Экраны §6: `jungle/{areaId}`, `training/{areaId}/{mode}`, `settings`,
+      `free_training`, `interview` (+ репозиторий `ReviewLog`).
+- [ ] Progress: UI-агрегация критерия «выучено» по дереву (логика есть, §4).
 
 ---
 
