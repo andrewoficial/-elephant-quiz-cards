@@ -68,16 +68,20 @@ platform/       expect-объявления (драйверы БД, пути, в
 
 Всё остальное (`domain`, большая часть `data`, UI) живёт в `commonMain`.
 
-Подключённые драйверы (Stage 00): `sqldelight-android-driver` (androidMain),
-`sqldelight-native-driver` (iosMain). Для JVM-драйвер SQLDelight добавим при
-первой интеграции БД.
+Подключённые драйверы: `sqldelight-android-driver` (androidMain),
+`sqlite-driver` (jvmMain), `sqldelight-native-driver` (iosMain).
 
 ## 5. Dependency Injection (Koin)
 
-- Модули Koin объявляются в `shared/commonMain` (`di/`).
-- Платформенные привязки (`DatabaseDriverFactory`, движок HTTP) добавляются
-  через модули, специфичные для платформы, и собираются в общий граф.
-- `koin-compose` используется для получения ViewModel во View.
+- Модули Koin объявляются в `shared/commonMain` (`di/`):
+  - `AppModule.kt` — общий модуль (`single<QuizStore>`).
+  - `PlatformModule.kt` — `expect val platformModule` (драйвер БД).
+  - `Koin.kt` — `initKoin()`: сборка `appModule + platformModule`.
+- Платформенные `actual` — в `androidMain` (`androidContext()`, `koin-android`),
+  `jvmMain`, `iosMain`.
+- `koin-core` в `commonMain` объявлен как `api`, чтобы типы Koin были видны
+  точкам входа (`androidApp`, `desktopApp`).
+- `koin-compose` используется для получения ViewModel/сервисов во View (`koinInject`).
 - **Правило:** `expect/actual` для того, что различается; Koin — для сборки графа.
 
 ## 6. Поток данных (эскиз)
@@ -115,13 +119,15 @@ UI (Compose) ──> ViewModel ──> UseCase (domain) ──> Repository (ин
 - Никаких секретов в коде (токены — `local.properties`/Keystore).
 - Один stage = одна ветка = один PR.
 
-## 9. Текущее состояние (Stage 00)
+## 9. Текущее состояние
+
+Foundation (модули, БД, DI, навигация) и domain выполнены:
 
 - [x] Модули `shared`/`androidApp`/`desktopApp`/`iosApp`.
 - [x] Зависимости подключены (Koin, SQLDelight, Ktor, serialization, datetime, uuid).
-- [x] Одно окно `App()` на Android и Desktop.
+- [x] `App()` на Android и Desktop; `QuizStore` получает из Koin (`koinInject`).
 - [x] Экран `presentation/subjects/SubjectsScreen` (направления + темы с прогресс-барами),
-      данные из `InMemoryStore`.
+      данные из `QuizStore`.
 - [x] Доменные модели: `TopicNode`/`NodeLevel`, `Card`/`CardOption`/`QuestionVariant`,
       `ReviewLog` + enums (§2 ТЗ).
 - [x] Доменная логика: SM-2 (`Sm2`) и критерий «выучено» (`isLearned`, `applicableModes`)
@@ -130,5 +136,14 @@ UI (Compose) ──> ViewModel ──> UseCase (domain) ──> Repository (ин
 - [x] Реальное хранилище: SQLDelight (`Database`, схема в `shared/sqldelight/*.sq`) +
       `SqlDelightStore`; драйверы `expect/actual` (Android/JVM/iOS).
 - [x] Экран `presentation/editor/EditorScreen` — добавление Q/A; данные сохраняются между запусками.
-- [ ] `di/` (Koin) — пока хранилище создаётся в точке входа.
-- [ ] Навигация (библиотека) и остальные экраны по §6.
+- [x] DI: `shared/di` (Koin) — граф собирается из точек входа, ручного создания хранилища нет.
+- [x] Навигация: `presentation/navigation/AppNavigator` — ручной роутер на состоянии
+      (ADR-003); маршруты `subjects`, `editor/{areaId}`.
+- [ ] Остальные экраны по §6: settings, jungle, training, free_training, interview.
+
+### Поток навигации
+
+```
+App() ── navigator.current (Screen) ──> Subjects / Editor
+Navigator: navigate(Editor(id)) — положить на стек; back() — снять.
+```

@@ -2,14 +2,14 @@ package com.elephantquizcards
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import com.elephantquizcards.data.db.DatabaseDriverFactory
+import com.elephantquizcards.di.initKoin
 
 fun main() = application {
-    val driverFactory = DatabaseDriverFactory()
+    initKoin()
     Window(
         onCloseRequest = ::exitApplication,
         title = "ElephantQuizCards",
     ) {
-        App(driverFactory)
+        App()
     }
 }

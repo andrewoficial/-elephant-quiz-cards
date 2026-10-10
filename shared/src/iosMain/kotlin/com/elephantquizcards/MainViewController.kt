@@ -1,6 +1,9 @@
 package com.elephantquizcards
 
 import androidx.compose.ui.window.ComposeUIViewController
-import com.elephantquizcards.data.db.DatabaseDriverFactory
+import com.elephantquizcards.di.initKoin
 
-fun MainViewController() = ComposeUIViewController { App(DatabaseDriverFactory()) }
+fun MainViewController() = ComposeUIViewController {
+    initKoin()
+    App()
+}

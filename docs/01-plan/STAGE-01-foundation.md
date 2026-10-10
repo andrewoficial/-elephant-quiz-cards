@@ -13,29 +13,31 @@
 - `QuizStore` = `TopicRepository` + `CardRepository`.
 
 ## Deliverables
-- [ ] Подключить Koin полностью: сейчас в каталоге есть `koin-core`, `koin-compose`.
-      Добавить `koin-android` (+ при необходимости `koin-androidx-compose`) для доступа
-      к `Context` и Android ViewModel.
-- [ ] `shared/commonMain/.../di/AppModule.kt` — `module { single<QuizStore> { SqlDelightStore... } }`
-      (или `single { SqlDelightStore.open(get()) }`).
-- [ ] `expect val platformModule: Module` (или `expect fun platformModule(): Module`)
-      и `actual` для Android/JVM/iOS:
-  - Android: `androidContext()` → `AndroidSqliteDriver`.
-  - JVM: `JdbcSqliteDriver` (файл `quizcards.db`).
-  - iOS: `NativeSqliteDriver`.
-- [ ] `fun initKoin()` в common; вызов из точек входа:
-  - Android: `Application.onCreate()` (создать `QuizCardsApp : Application`) **или** `MainActivity`.
-  - Desktop: `main()` до `application { }`.
+
+- [x] Подключить Koin полностью: теперь в каталоге есть `koin-core`, `koin-compose`
+      (common), `koin-android` (androidMain). `koin-core` — `api` (нужен типам в точках входа).
+- [x] `shared/commonMain/.../di/AppModule.kt` — `single<QuizStore> {
+      SqlDelightStore.open(get<DatabaseDriverFactory>().createDriver())
+      .also(SampleData::seedIfEmpty) }`.
+- [x] `expect val platformModule: Module` + `actual` для Android/JVM/iOS:
+  - Android: `single<DatabaseDriverFactory> { DatabaseDriverFactory(androidContext()) }`.
+  - JVM: `single<DatabaseDriverFactory> { DatabaseDriverFactory() }` (файл `quizcards.db`).
+  - iOS: `single<DatabaseDriverFactory> { DatabaseDriverFactory() }` (`NativeSqliteDriver`).
+- [x] `fun initKoin()` в common + вызов из точек входа:
+  - Android: `QuizCardsApp : Application` → `initKoin(context)` в `onCreate()`.
+  - Desktop: `main()` до `Window`.
   - iOS: в `MainViewController`.
-- [ ] `App()` перестаёт принимать `driverFactory` и берёт store из Koin
-      (`koinInject()` / `getKoin().get()`).
-- [ ] Демо-наполнение `SampleData.seedIfEmpty` перенести в инициализацию.
+- [x] `App()` больше не принимает `driverFactory`; `QuizStore` из Koin через `koinInject()`.
+- [x] Демо-наполнение `SampleData.seedIfEmpty` перенесено в инициализацию (фактори `single`).
+- [x] Навигация (ручной роутер): `presentation/navigation/AppNavigator.kt`, маршруты
+      `subjects` / `editor/{areaId}`. Выбор — в ADR-003.
 
 ## Definition of Done
-- `./gradlew :androidApp:assembleDebug` и `:desktopApp:run` — собираются и работают.
-- `./gradlew :shared:jvmTest` — зелёный (тесты не сломаны).
-- В точках входа нет прямого `DatabaseDriverFactory(...)`.
-- Автор проверил GUI вручную: данные сохраняются, редактор работает.
+
+- [x] `./gradlew :androidApp:assembleDebug` и `:desktopApp:compileKotlin` — BUILD SUCCESSFUL.
+- [x] `./gradlew :shared:jvmTest` — зелёный (вкл. новый `KoinModuleTest`).
+- [x] В точках входа нет прямого `DatabaseDriverFactory(...)`.
+- [ ] Автор проверил GUI вручную: данные сохраняются, редактор работает, навигация кликается.
 
 ## Затрагиваемые модули
 - `shared/di`, `shared/data/db`, `androidApp`, `desktopApp`, `shared/iosMain`.
@@ -46,4 +48,5 @@
 ## Заметки / решения
 - Android требует `Context` для драйвера — решается через `androidContext()` в Koin.
 - Выбор: `Application` + `startKoin` (чисто) vs `MainActivity` (минимум правок).
-  Зафиксировать в `docs/02-architecture/DECISIONS.md` (ADR).
+  Зафиксировано в `docs/02-architecture/DECISIONS.md` (ADR-002): взят `Application`.
+- Роутер: ручной `AppNavigator` на состоянии Compose вместо библиотеки — ADR-003.

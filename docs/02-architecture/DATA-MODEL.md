@@ -50,7 +50,11 @@ Append-only (§2.3 ТЗ). `selectReviewLogsByCard` для проверки кр�
   `NativeSqliteDriver`.
   - JVM: файл `quizcards.db`; схема создаётся при первом запуске.
   - Android: `quizcards.db` во внутреннем хранилище приложения.
-- Первичное наполнение демо-данными — `data/local/SampleData.seedIfEmpty`.
+- Сборка всего этого — через Koin (`di/`): `appModule` регистрирует `single<QuizStore>`,
+  `platformModule` — платформенный `DatabaseDriverFactory`. Точки входа вызывают
+  `initKoin()` и не знают про БД. См. `ARCHITECTURE.md` §5.
+- Первичное наполнение демо-данными — `data/local/SampleData.seedIfEmpty`
+  (вызывается в фактори `single<QuizStore>`).
 
 ## TODO
 

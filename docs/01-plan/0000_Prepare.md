@@ -18,25 +18,42 @@
 - [x] 1. Модуль `shared`
 - [x] 2. Зависимости Gradle (проверены сборкой по одной)
 - [~] 3. Документация: есть `0000_Prepare`, `SYSTEM-REQUIREMENTS`, `ARCHITECTURE`,
-      `DATA-MODEL`, `ROADMAP`, `STAGE-01-foundation`, `AGENTS.md`;
-      нет `STAGE-02..07` / `SYNC` / `DECISIONS` / `LIBS` / `GLOSSARY`.
+      `DATA-MODEL`, `ROADMAP`, `STAGE-01-foundation`, `DECISIONS`, `AGENTS.md`;
+      нет `STAGE-02..07` / `SYNC` / `LIBS` / `GLOSSARY`.
 - [x] 4. Каркас UI: `SubjectsScreen` (направления + прогресс-бары) + `EditorScreen` (Q/A)
 - [x] 5. Билды: `:androidApp:assembleDebug`, `:desktopApp:run` — OK;
       проверено автором на эмуляторе `Pixel_6` и на десктопе.
 - [x] 6. Git: локальный репозиторий + пуш на удалённый (сделал автор).
 - [x] 7. `AGENTS.md` в корне (правило: GUI-тесты — вручную автором)
 
-### Реализовано сверх плана Stage-00 (Stage-02 domain + персистентность)
+### Реализовано сверх плана Stage-00
+
+**Stage-02 (domain) + персистентность**
 
 - [x] Доменные модели (§2 ТЗ), SM-2 и критерий «выучено» (§3–4) + юнит-тесты.
 - [x] SQLDelight: схема, драйверы, `SqlDelightStore` — сохранение между запусками.
 - [x] Экран редактора карточек (добавление Q/A).
 
-### Следующий шаг (продолжение завтра)
+**Stage-01 (foundation) — DI (Koin) + навигация**
 
-- [ ] **Stage-01: DI (Koin)** — вынести создание `SqlDelightStore`/драйвера в Koin-модули
-      (common + платформенные), убрать ручное создание из точек входа. См. `STAGE-01-foundation.md`.
-- [ ] Затем: навигация (библиотека) + остальные экраны §6; выбор роутера — в `DECISIONS.md`.
+- [x] Koin-граф в `shared/di`: `appModule` (common) + `platformModule` (expect/actual);
+      `initKoin()` из точек входа: Android `QuizCardsApp : Application`,
+      Desktop `main()`, iOS `MainViewController`.
+- [x] `App()` получает `QuizStore` через `koinInject`; из точек входа убран
+      прямой `DatabaseDriverFactory(...)`.
+- [x] Юнит-тесты: `KoinModuleTest` (граф резолвится, БД наполняется демо-данными).
+- [x] Проверка сборок: `:shared:jvmTest`, `:desktopApp:compileKotlin`,
+      `:androidApp:assembleDebug` — OK (GUI — вручную автором).
+- [x] Навигация: `presentation/navigation/AppNavigator.kt` — ручной роутер на
+      состоянии Compose (ADR-003); маршруты `subjects`, `editor/{areaId}`.
+- [x] `docs/02-architecture/DECISIONS.md` — создан (ADR-001…003).
+
+### Следующий шаг
+
+- [ ] Экраны §6: нижний бар навигации + `settings`, `jungle/{areaId}`,
+      `training/{areaId}/{mode}`, `free_training`, `interview`.
+- [ ] Редактор целиком: CRUD, поиск, 3 вкладки (§6).
+- [ ] Training: 4 метода + SM-2 + очередь на сегодня; Progress-агрегация в UI.
 
 ---
 
@@ -127,8 +144,8 @@ uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
       (OS, IDE, JDK, Gradle, SDK, AVD, версии либ).
 - [x] `docs/02-architecture/ARCHITECTURE.md` — слои, модули, `expect/actual`, DI, поток данных.
 - [x] `docs/02-architecture/DATA-MODEL.md` — сущности + SQL-схема SQLDelight.
-- [ ] `ROADMAP.md` и `STAGE-01..07-*.md` — только шаблоны ниже, файлов нет.
-- [ ] `02-architecture/SYNC.md`, `DECISIONS.md` — нет.
+- [x] `ROADMAP.md` и `STAGE-01-foundation.md` — созданы; `STAGE-02..07-*.md` — нет.
+- [x] `02-architecture/DECISIONS.md` — создан (ADR-001…003); `SYNC.md` — нет.
 - [ ] `03-reference/*` — папки созданы, файлов нет.
 
 ```

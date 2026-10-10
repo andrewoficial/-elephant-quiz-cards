@@ -61,6 +61,7 @@ kotlin {
             implementation(libs.compose.uiTooling)
             implementation(libs.sqldelight.android)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.koin.android)
         }
         iosMain.dependencies {
             implementation(libs.sqldelight.native)
@@ -77,7 +78,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(libs.koin.core)
+            api(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.sqldelight.runtime)
             implementation(libs.ktor.client.core)

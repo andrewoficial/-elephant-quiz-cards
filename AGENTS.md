@@ -25,4 +25,7 @@
 - (GUI — вручную автором.)
 
 ## Текущий stage
-`docs/01-plan/` — сейчас Stage-02 (domain). См. `0000_Prepare.md` для статуса.
+`docs/01-plan/0000_Prepare.md` — статус. Сделано: Stage-00 (каркас), domain
+(Stage-02: модели, SM-2, критерий «выучено», SQLDelight), Stage-01 foundation
+(DI/Koin + ручная навигация, ADR-001..003). Следующий шаг: экраны §6
+(settings/jungle/training) и полный редактор (CRUD, поиск, вкладки).
