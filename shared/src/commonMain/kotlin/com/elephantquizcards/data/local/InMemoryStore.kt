@@ -1,6 +1,7 @@
 package com.elephantquizcards.data.local
 
 import com.elephantquizcards.domain.model.Card
+import com.elephantquizcards.domain.model.ReviewLog
 import com.elephantquizcards.domain.model.TopicNode
 import com.elephantquizcards.domain.repository.QuizStore
 import com.elephantquizcards.platform.currentTimeMillis
@@ -19,6 +20,8 @@ class InMemoryStore private constructor(
 
     private val cards: MutableMap<String, Card> =
         initialCards.associateByTo(LinkedHashMap()) { it.id }
+
+    private val reviews: MutableList<ReviewLog> = mutableListOf()
 
     override fun allTopics(): List<TopicNode> =
         topics.values.sortedWith(compareBy({ it.level.depth }, { it.order }, { it.name }))
@@ -64,6 +67,13 @@ class InMemoryStore private constructor(
         val existing = cards[id] ?: return
         cards[id] = existing.copy(deletedAt = currentTimeMillis(), updatedAt = currentTimeMillis())
     }
+
+    override fun insertReview(log: ReviewLog) {
+        reviews += log
+    }
+
+    override fun reviewLogsByCard(cardId: String): List<ReviewLog> =
+        reviews.filter { it.cardId == cardId }.sortedBy { it.reviewedAt }
 
     companion object {
         fun of(topics: List<TopicNode>, cards: List<Card>): InMemoryStore =

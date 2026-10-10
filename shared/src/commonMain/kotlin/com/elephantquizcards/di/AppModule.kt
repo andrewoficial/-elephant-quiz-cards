@@ -3,6 +3,7 @@ package com.elephantquizcards.di
 import com.elephantquizcards.data.db.DatabaseDriverFactory
 import com.elephantquizcards.data.db.SqlDelightStore
 import com.elephantquizcards.data.local.SampleData
+import com.elephantquizcards.domain.logic.TrainingScheduler
 import com.elephantquizcards.domain.repository.QuizStore
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -19,4 +20,5 @@ val appModule: Module = module {
         SqlDelightStore.open(get<DatabaseDriverFactory>().createDriver())
             .also(SampleData::seedIfEmpty)
     }
+    single { TrainingScheduler(get()) }
 }

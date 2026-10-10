@@ -2,6 +2,7 @@ package com.elephantquizcards.data.db
 
 import app.cash.sqldelight.db.SqlDriver
 import com.elephantquizcards.data.db.Card as CardRow
+import com.elephantquizcards.data.db.ReviewLog as ReviewLogRow
 import com.elephantquizcards.data.db.Topic as TopicRow
 import com.elephantquizcards.domain.model.Card
 import com.elephantquizcards.domain.model.CardOption
@@ -9,6 +10,8 @@ import com.elephantquizcards.domain.model.CardSource
 import com.elephantquizcards.domain.model.CardType
 import com.elephantquizcards.domain.model.NodeLevel
 import com.elephantquizcards.domain.model.QuestionVariant
+import com.elephantquizcards.domain.model.ReviewLog
+import com.elephantquizcards.domain.model.ReviewMode
 import com.elephantquizcards.domain.model.TopicNode
 import com.elephantquizcards.domain.repository.QuizStore
 import com.elephantquizcards.platform.currentTimeMillis
@@ -25,6 +28,7 @@ class SqlDelightStore(private val database: Database) : QuizStore {
 
     private val topicQueries get() = database.topicQueries
     private val cardQueries get() = database.cardQueries
+    private val reviewLogQueries get() = database.reviewLogQueries
 
     // --- Topics ---
 
@@ -120,6 +124,26 @@ class SqlDelightStore(private val database: Database) : QuizStore {
         cardQueries.softDeleteCard(deletedAt = now, updatedAt = now, id = id)
     }
 
+    // --- Review log ---
+
+    override fun insertReview(log: ReviewLog) {
+        reviewLogQueries.insertReviewLog(
+            id = log.id,
+            cardId = log.cardId,
+            variantId = log.variantId,
+            reviewedAt = log.reviewedAt,
+            mode = log.mode.name,
+            quality = log.quality.toLong(),
+            livesLost = log.livesLost?.toLong(),
+            intervalBefore = log.intervalBefore.toLong(),
+            intervalAfter = log.intervalAfter.toLong(),
+            timeSpentMs = log.timeSpentMs,
+        )
+    }
+
+    override fun reviewLogsByCard(cardId: String): List<ReviewLog> =
+        reviewLogQueries.selectReviewLogsByCard(cardId).executeAsList().map(::toDomain)
+
     // --- Mappers ---
 
     private fun toDomain(row: TopicRow): TopicNode = TopicNode(
@@ -169,6 +193,19 @@ class SqlDelightStore(private val database: Database) : QuizStore {
     private fun toDomain(dto: CardOptionDto) = CardOption(dto.id, dto.text, dto.isCorrect, dto.order)
     private fun toDto(variant: QuestionVariant) = QuestionVariantDto(variant.id, variant.questionText, variant.questionCode)
     private fun toDomain(dto: QuestionVariantDto) = QuestionVariant(dto.id, dto.questionText, dto.questionCode)
+
+    private fun toDomain(row: ReviewLogRow): ReviewLog = ReviewLog(
+        id = row.id,
+        cardId = row.cardId,
+        variantId = row.variantId,
+        reviewedAt = row.reviewedAt,
+        mode = ReviewMode.valueOf(row.mode),
+        quality = row.quality.toInt(),
+        livesLost = row.livesLost?.toInt(),
+        intervalBefore = row.intervalBefore.toInt(),
+        intervalAfter = row.intervalAfter.toInt(),
+        timeSpentMs = row.timeSpentMs,
+    )
 
     companion object {
         private val json = Json { ignoreUnknownKeys = true }

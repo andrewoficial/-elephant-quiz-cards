@@ -9,6 +9,8 @@ import com.elephantquizcards.domain.model.CardSource
 import com.elephantquizcards.domain.model.CardType
 import com.elephantquizcards.domain.model.NodeLevel
 import com.elephantquizcards.domain.model.QuestionVariant
+import com.elephantquizcards.domain.model.ReviewLog
+import com.elephantquizcards.domain.model.ReviewMode
 import com.elephantquizcards.domain.model.TopicNode
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -106,5 +108,25 @@ class SqlDelightStoreTest {
         )
         assertEquals(2, store.cardsByTopics(listOf("t1", "t2")).size)
         assertTrue(store.cardsByTopics(emptyList()).isEmpty())
+    }
+
+    @Test
+    fun reviewLog_roundTrip() {
+        val store = newStore()
+        val log = ReviewLog(
+            id = "r1",
+            cardId = "c1",
+            variantId = "v1",
+            reviewedAt = 42,
+            mode = ReviewMode.OPEN,
+            quality = 3,
+            intervalBefore = 0,
+            intervalAfter = 6,
+            timeSpentMs = 1500,
+        )
+        store.insertReview(log)
+
+        assertEquals(listOf(log), store.reviewLogsByCard("c1"))
+        assertTrue(store.reviewLogsByCard("other").isEmpty())
     }
 }

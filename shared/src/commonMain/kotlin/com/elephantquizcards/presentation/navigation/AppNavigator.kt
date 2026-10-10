@@ -3,15 +3,18 @@ package com.elephantquizcards.presentation.navigation
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import com.elephantquizcards.domain.model.ReviewMode
 
 /**
- * Маршруты приложения (§6 ТЗ). Пока реализованы `subjects` и `editor/{areaId}`;
- * остальные (`settings`, `jungle/{areaId}`, `training/{areaId}/{mode}`, ...)
- * добавляются вместе со своими экранами.
+ * Маршруты приложения (§6 ТЗ). Реализованы `subjects`, `editor/{areaId}`,
+ * `jungle/{areaId}` и `training/{areaId}/{mode}`; остальные
+ * (`settings`, `free_training`, ...) добавляются вместе со своими экранами.
  */
 sealed interface Screen {
     data object Subjects : Screen
     data class Editor(val areaId: String) : Screen
+    data class Jungle(val areaId: String) : Screen
+    data class Training(val areaId: String, val mode: ReviewMode) : Screen
 }
 
 /**

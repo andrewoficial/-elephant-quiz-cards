@@ -21,6 +21,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,6 +48,7 @@ private const val LEARNED_INTERVAL_DAYS = 20
 fun SubjectsScreen(
     store: QuizStore,
     onOpenArea: (String) -> Unit,
+    onOpenJungle: (String) -> Unit,
 ) {
     val disciplines = store.childTopics(null).filter { it.level == NodeLevel.DISCIPLINE }
 
@@ -73,6 +75,7 @@ fun SubjectsScreen(
                     areas = areas,
                     cardsInSubtree = { store.cardsInSubtree(it) },
                     onOpenArea = onOpenArea,
+                    onOpenJungle = onOpenJungle,
                 )
             }
         }
@@ -85,6 +88,7 @@ private fun DisciplineCard(
     areas: List<TopicNode>,
     cardsInSubtree: (String) -> List<com.elephantquizcards.domain.model.Card>,
     onOpenArea: (String) -> Unit,
+    onOpenJungle: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val allCards = areas.flatMap { cardsInSubtree(it.id) }
@@ -127,6 +131,7 @@ private fun DisciplineCard(
                             area = area,
                             cards = cardsInSubtree(area.id),
                             onClick = { onOpenArea(area.id) },
+                            onTrain = { onOpenJungle(area.id) },
                         )
                     }
                 }
@@ -140,6 +145,7 @@ private fun AreaRow(
     area: TopicNode,
     cards: List<com.elephantquizcards.domain.model.Card>,
     onClick: () -> Unit,
+    onTrain: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -163,6 +169,13 @@ private fun AreaRow(
         }
         Spacer(Modifier.height(4.dp))
         ProgressBar(learnedRatio(cards))
+        TextButton(
+            onClick = onTrain,
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(vertical = 4.dp),
+        ) {
+            Text("Тренировать")
+        }
     }
 }
 
@@ -197,5 +210,7 @@ private fun learnedRatio(cards: List<com.elephantquizcards.domain.model.Card>): 
 @Preview
 @Composable
 private fun SubjectsScreenPreview() {
-    MaterialTheme { SubjectsScreen(store = InMemoryStore.sample(), onOpenArea = {}) }
+    MaterialTheme {
+        SubjectsScreen(store = InMemoryStore.sample(), onOpenArea = {}, onOpenJungle = {})
+    }
 }
