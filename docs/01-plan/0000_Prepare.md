@@ -53,10 +53,20 @@
 Также сделано: **Editor — CRUD** (добавить/изменить/удалить с подтверждением) +
 **поиск** по вопросу/ответу (`domain/logic/CardSearch.kt` + юнит-тесты).
 
+Также сделано: **Training — все 4 метода** (roadmap #5):
+- `ReviewLogRepository` + реализация в `SqlDelightStore`/`InMemoryStore`;
+- `domain/logic/TrainingScheduler.kt` — ответ → SM-2 → обновление карточки + запись
+  в журнал повторений (юнит-тесты);
+- `domain/logic/Queue.kt` — очередь «сегодня» (`dueNow` / `todayQueue`);
+- `domain/logic/TextNormalizer.kt` — адаптер нормализации (methods OPEN/TYPING);
+- `domain/logic/{Question,Choice,Typing}.kt` — случайный вариант вопроса, проверка
+  выбора (всё-или-ничего) и посимвольный ввод с 3 жизнями (+ юнит-тесты);
+- экраны `jungle/{areaId}` (выбор метода + счёт очереди) и `training/{areaId}/{mode}`:
+  **Самоконтроль**, **Открытый вопрос**, **Варианты ответа**, **Ввод по буквам**.
+
+- [ ] Training: учёт `variantId` и `timeSpentMs` в журнале повторений.
 - [ ] Editor: вкладки (список/поиск/импорт) и импорт/экспорт JSON (§5.2/§5.3).
-- [ ] Training: 4 метода + SM-2 + очередь на сегодня (§3, roadmap #5).
-- [ ] Экраны §6: `jungle/{areaId}`, `training/{areaId}/{mode}`, `settings`,
-      `free_training`, `interview` (+ репозиторий `ReviewLog`).
+- [ ] Экраны §6: `settings`, `free_training`, `interview` (+ UI-агрегация прогресса).
 - [ ] Progress: UI-агрегация критерия «выучено» по дереву (логика есть, §4).
 
 ---

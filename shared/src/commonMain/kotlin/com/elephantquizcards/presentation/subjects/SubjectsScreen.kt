@@ -35,13 +35,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.elephantquizcards.data.local.InMemoryStore
+import com.elephantquizcards.domain.logic.learnedRatio
 import com.elephantquizcards.domain.model.NodeLevel
 import com.elephantquizcards.domain.model.TopicNode
 import com.elephantquizcards.domain.repository.QuizStore
 import com.elephantquizcards.domain.repository.cardsInSubtree
 import kotlin.math.roundToInt
-
-private const val LEARNED_INTERVAL_DAYS = 20
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,6 +73,9 @@ fun SubjectsScreen(
                     discipline = discipline,
                     areas = areas,
                     cardsInSubtree = { store.cardsInSubtree(it) },
+                    logsInSubtree = { areaId ->
+                        store.cardsInSubtree(areaId).flatMap { store.reviewLogsByCard(it.id) }
+                    },
                     onOpenArea = onOpenArea,
                     onOpenJungle = onOpenJungle,
                 )
@@ -87,12 +89,14 @@ private fun DisciplineCard(
     discipline: TopicNode,
     areas: List<TopicNode>,
     cardsInSubtree: (String) -> List<com.elephantquizcards.domain.model.Card>,
+    logsInSubtree: (String) -> List<com.elephantquizcards.domain.model.ReviewLog>,
     onOpenArea: (String) -> Unit,
     onOpenJungle: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val allCards = areas.flatMap { cardsInSubtree(it.id) }
-    val progress = learnedRatio(allCards)
+    val allLogs = areas.flatMap { logsInSubtree(it.id) }
+    val progress = learnedRatio(allCards, allLogs)
 
     Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -130,6 +134,7 @@ private fun DisciplineCard(
                         AreaRow(
                             area = area,
                             cards = cardsInSubtree(area.id),
+                            logs = logsInSubtree(area.id),
                             onClick = { onOpenArea(area.id) },
                             onTrain = { onOpenJungle(area.id) },
                         )
@@ -144,9 +149,11 @@ private fun DisciplineCard(
 private fun AreaRow(
     area: TopicNode,
     cards: List<com.elephantquizcards.domain.model.Card>,
+    logs: List<com.elephantquizcards.domain.model.ReviewLog>,
     onClick: () -> Unit,
     onTrain: () -> Unit,
 ) {
+    val progress = learnedRatio(cards, logs)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -162,13 +169,13 @@ private fun AreaRow(
                 modifier = Modifier.weight(1f),
             )
             Text(
-                text = "${cards.size} карт. · ${(learnedRatio(cards) * 100).roundToInt()}%",
+                text = "${cards.size} карт. · ${(progress * 100).roundToInt()}%",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         Spacer(Modifier.height(4.dp))
-        ProgressBar(learnedRatio(cards))
+        ProgressBar(progress)
         TextButton(
             onClick = onTrain,
             modifier = Modifier.fillMaxWidth(),
@@ -199,12 +206,6 @@ private fun ProgressBar(progress: Float, modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxWidth().height(8.dp),
         strokeCap = StrokeCap.Round,
     )
-}
-
-private fun learnedRatio(cards: List<com.elephantquizcards.domain.model.Card>): Float {
-    if (cards.isEmpty()) return 0f
-    val learned = cards.count { it.intervalDays >= LEARNED_INTERVAL_DAYS }
-    return learned.toFloat() / cards.size
 }
 
 @Preview

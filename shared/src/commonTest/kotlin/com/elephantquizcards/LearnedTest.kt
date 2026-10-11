@@ -2,12 +2,14 @@ package com.elephantquizcards
 
 import com.elephantquizcards.domain.logic.applicableModes
 import com.elephantquizcards.domain.logic.isLearned
+import com.elephantquizcards.domain.logic.learnedRatio
 import com.elephantquizcards.domain.model.Card
 import com.elephantquizcards.domain.model.CardType
 import com.elephantquizcards.domain.model.QuestionVariant
 import com.elephantquizcards.domain.model.ReviewLog
 import com.elephantquizcards.domain.model.ReviewMode
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -117,5 +119,16 @@ class LearnedTest {
 
         val missingV2 = logs.filterNot { it.variantId == "v2" }
         assertFalse(isLearned(c, missingV2))
+    }
+
+    @Test
+    fun learnedRatio_aggregatesOverAllCards() {
+        val learned = card(intervalDays = 20)
+        val notLearned = card(intervalDays = 5).copy(id = "c2")
+        val logs = applicableModes(learned).map { log(learned, it, quality = 5, at = 1L) }
+
+        assertEquals(0.5f, learnedRatio(listOf(learned, notLearned), logs))
+        assertEquals(1f, learnedRatio(listOf(learned), logs))
+        assertEquals(0f, learnedRatio(emptyList(), logs))
     }
 }

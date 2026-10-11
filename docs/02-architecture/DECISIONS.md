@@ -40,3 +40,22 @@
   сценарии анимаций/жестов), Voyager.
 Последствия: при росте числа экранов (jungle/training/settings/free_training/
   interview) переоценить решение и заменить на библиотеку — правка здесь, в этом файле.
+
+## ADR-004: Отключение ripple/hover-анимаций глобально
+Дата: 2026-10-10
+Статус: принято
+Контекст: в десктопном Compose при клике виден прямоугольный оверлей
+  (`DefaultDebugIndication`), при наведении — подсветка; в стиле «Windows Phone»
+  такие анимации нежелательны.
+Решение: в `App()` оборачиваем содержимое в `CompositionLocalProvider`:
+  `LocalIndication provides NoIndication` (no-op `IndicationNodeFactory`) и
+  `LocalRippleConfiguration provides null` (Material3). Это убирает клик/hover
+  для нативных `Modifier.clickable` и Material3-компонентов (Button/Card).
+  `NoIndication` обязан реализовывать `IndicationNodeFactory` (не legacy
+  `Indication`): `clickable` бросает `IllegalArgumentException`, если в
+  `LocalIndication` лежит не-node реализация. Узел — `Modifier.Node()` +
+  `DrawModifierNode`, в `draw()` вызываем `drawContent()` (без оверлея).
+Альтернативы: `indication = null` в каждом `clickable` (много точек, легко
+  забыть), тема с кастомной анимацией (избыточно для MVP).
+Последствия: кликабельность остаётся, но без визуальной обратной связи; при
+  необходимости точечных анимаций — задавать `indication` явно в месте вызова.

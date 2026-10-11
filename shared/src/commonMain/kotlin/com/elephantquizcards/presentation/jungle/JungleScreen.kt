@@ -8,12 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -37,7 +35,6 @@ import com.elephantquizcards.platform.currentTimeMillis
 /**
  * «Джунгли» — выбор формы повторения для области и очередь на сегодня (§6 ТЗ).
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JungleScreen(
     store: QuizStore,
@@ -97,16 +94,20 @@ fun JungleScreen(
             )
             MethodRow(
                 name = "Варианты ответа",
-                subtitle = "Подойдёт ${choiceCount} карточкам",
-                enabled = false,
-                soon = true,
+                subtitle = when {
+                    choiceCount == 0 -> "Нет карточек с вариантами"
+                    else -> "Подойдёт $choiceCount карточкам"
+                },
+                enabled = hasQueue && choiceCount > 0,
                 onClick = { onStartTraining(ReviewMode.CHOICE) },
             )
             MethodRow(
                 name = "Ввод по буквам",
-                subtitle = "Подойдёт ${typingCount} карточкам",
-                enabled = false,
-                soon = true,
+                subtitle = when {
+                    typingCount == 0 -> "Нет коротких ответов без кода"
+                    else -> "Подойдёт $typingCount карточкам"
+                },
+                enabled = hasQueue && typingCount > 0,
                 onClick = { onStartTraining(ReviewMode.TYPING) },
             )
         }
@@ -118,20 +119,19 @@ private fun MethodRow(
     name: String,
     subtitle: String,
     enabled: Boolean,
-    soon: Boolean = false,
     onClick: () -> Unit,
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = enabled && !soon, onClick = onClick),
+            .clickable(enabled = enabled, onClick = onClick),
         shape = RoundedCornerShape(12.dp),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .alpha(if (enabled && !soon) 1f else 0.6f),
+                .alpha(if (enabled) 1f else 0.6f),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
@@ -144,14 +144,6 @@ private fun MethodRow(
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            if (soon) {
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = "скорее",
-                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }

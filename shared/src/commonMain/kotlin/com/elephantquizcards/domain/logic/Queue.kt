@@ -1,6 +1,7 @@
 package com.elephantquizcards.domain.logic
 
 import com.elephantquizcards.domain.model.Card
+import com.elephantquizcards.domain.model.ReviewMode
 import com.elephantquizcards.domain.repository.QuizStore
 import com.elephantquizcards.domain.repository.cardsInSubtree
 
@@ -14,3 +15,11 @@ fun List<Card>.dueNow(now: Long): List<Card> =
  */
 fun QuizStore.todayQueue(areaId: String, now: Long): List<Card> =
     cardsInSubtree(areaId).dueNow(now)
+
+/**
+ * Очередь «сегодня», суженная до карточек, к которым применима форма [mode] (§3 ТЗ):
+ * CHOICE — только MULTIPLE_CHOICE; TYPING — только короткие ответы без кода;
+ * OPEN и SELF_CONTROL — любая карточка.
+ */
+fun QuizStore.todayQueue(areaId: String, mode: ReviewMode, now: Long): List<Card> =
+    todayQueue(areaId, now).filter { mode in applicableModes(it) }

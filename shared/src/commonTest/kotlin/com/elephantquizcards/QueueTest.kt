@@ -3,7 +3,10 @@ package com.elephantquizcards
 import com.elephantquizcards.data.local.InMemoryStore
 import com.elephantquizcards.domain.logic.dueNow
 import com.elephantquizcards.domain.logic.todayQueue
+import com.elephantquizcards.domain.model.CardOption
+import com.elephantquizcards.domain.model.CardType
 import com.elephantquizcards.domain.model.NodeLevel
+import com.elephantquizcards.domain.model.ReviewMode
 import com.elephantquizcards.domain.model.TopicNode
 import com.elephantquizcards.domain.model.newManualCard
 import kotlin.test.Test
@@ -51,5 +54,27 @@ class QueueTest {
 
         assertEquals(listOf("Должна"), store.todayQueue("java", 300L).map { it.question })
         assertEquals(2, store.todayQueue("java-collections", 500L).size)
+    }
+
+    @Test
+    fun todayQueue_filtersByMode() {
+        val topics = listOf(topic("java"))
+        val shortSelfCheck = newManualCard("java", "Короткий", "char", now = 0)
+        val longSelfCheck = newManualCard("java", "Длинный", "A".repeat(120), now = 0)
+        val multipleChoice = newManualCard(
+            topicId = "java",
+            question = "Выбор",
+            answer = "A",
+            type = CardType.MULTIPLE_CHOICE,
+            now = 0,
+        ).copy(options = listOf(CardOption("o1", "A", true, 0)))
+        val store = InMemoryStore.of(topics, listOf(shortSelfCheck, longSelfCheck, multipleChoice))
+
+        fun queue(mode: ReviewMode) = store.todayQueue("java", mode, 100L).map { it.question }
+
+        assertEquals(listOf("Короткий", "Длинный", "Выбор"), queue(ReviewMode.OPEN))
+        assertEquals(listOf("Короткий", "Длинный", "Выбор"), queue(ReviewMode.SELF_CONTROL))
+        assertEquals(listOf("Выбор"), queue(ReviewMode.CHOICE))
+        assertEquals(listOf("Короткий", "Выбор"), queue(ReviewMode.TYPING))
     }
 }

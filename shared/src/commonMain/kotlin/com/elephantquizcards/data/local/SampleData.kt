@@ -1,6 +1,8 @@
 package com.elephantquizcards.data.local
 
 import com.elephantquizcards.domain.model.Card
+import com.elephantquizcards.domain.model.CardOption
+import com.elephantquizcards.domain.model.CardType
 import com.elephantquizcards.domain.model.NodeLevel
 import com.elephantquizcards.domain.model.TopicNode
 import com.elephantquizcards.domain.model.newManualCard
@@ -49,6 +51,28 @@ object SampleData {
             answer = "Хеш-таблица: массив бакетов + связные списки/красно-чёрные деревья (с Java 8). " +
                 "Ключ → hashCode → индекс бакета; коллизии разрешаются цепочками.",
             now = now,
+        ),
+        // Короткий ответ — доступен метод «Ввод по буквам».
+        newManualCard(
+            topicId = "java-core",
+            question = "Какой примитивный тип в Java хранит один символ (16 бит)?",
+            answer = "char",
+            now = now,
+        ),
+        // Множественный выбор — доступен метод «Варианты ответа» (всё-или-ничего).
+        newManualCard(
+            topicId = "java-core",
+            question = "Какие из перечисленных типов в Java — примитивные?",
+            answer = "int, boolean",
+            type = CardType.MULTIPLE_CHOICE,
+            now = now,
+        ).copy(
+            options = listOf(
+                CardOption("jc-int", "int", isCorrect = true, order = 0),
+                CardOption("jc-string", "String", isCorrect = false, order = 1),
+                CardOption("jc-boolean", "boolean", isCorrect = true, order = 2),
+                CardOption("jc-list", "List", isCorrect = false, order = 3),
+            ),
         ),
     )
 
